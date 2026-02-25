@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - CentriCalc</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="logo.png" alt="CentriCalc Logo" class="main-logo" onerror="this.style.display='none'">
+            <h1>Criar Conta</h1>
+            <p id="register-subtitle" style="color: #0284c7; font-weight: 600;">Comece agora - 14 dias grátis</p>
+        </div>
+
+        <div id="error-alert" class="error-message"></div>
+        <div id="success-alert" class="error-message"
+            style="background: #f0fdf4; border-color: #bbf7d0; color: #15803d; display: none;"></div>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label for="username">Nome de Usuário</label>
+                <input type="text" id="username" placeholder="Seu nome" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+                <div class="password-requirements" id="pwd-reqs">
+                    <p class="req" id="req-length">• Mínimo 8 caracteres</p>
+                    <p class="req" id="req-upper">• Letra maiúscula</p>
+                    <p class="req" id="req-lower">• Letra minúscula</p>
+                    <p class="req" id="req-num">• Número</p>
+                    <p class="req" id="req-special">• Caractere especial</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirmar Senha</label>
+                <input type="password" id="confirm-password" placeholder="••••••••" required>
+            </div>
+
+            <div class="terms-group">
+                <input type="checkbox" id="terms-checkbox" required>
+                <label for="terms-checkbox">Li e concordo com os <a href="#" id="open-terms">Termos de Uso</a></label>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-primary" style="margin-top: 10px;">
+                <span>Criar minha conta</span>
+                <div id="spinner" class="loading-spinner"></div>
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <p>Já tem uma conta? <a href="index.html">Entre aqui</a></p>
+        </div>
+    </div>
+
+    <!-- Modal de Termos de Uso -->
+    <div id="terms-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Termos de Uso</h2>
+                <button class="close-modal" id="close-terms">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Bem-vindo ao <strong>CentriCalc</strong>. Ao utilizar nosso sistema, você concorda com os seguintes
+                    termos:</p>
+
+                <h3>1. Período de Teste (Trial)</h3>
+                <p>Oferecemos um período de teste gratuito de 14 dias para novos usuários. Após este prazo, o acesso às
+                    funcionalidades premium será bloqueado, exceto se houver a assinatura de um plano pago.</p>
+
+                <h3>2. Política de Anti-Abuso</h3>
+                <p>Para garantir a segurança e evitar o uso indevido de múltiplos períodos de teste, o sistema coleta e
+                    armazena o <strong>endereço IP</strong> utilizado no cadastro. Registros duplicados de teste
+                    originados da mesma rede poderão ser bloqueados automaticamente.</p>
+
+                <h3>3. Responsabilidade técnica</h3>
+                <p>O CentriCalc é uma ferramenta de auxílio ao dimensionamento. O usuário é o único responsável pelos
+                    dados inseridos e pela validação técnica dos resultados finais por um profissional habilitado.</p>
+
+                <h3>4. Privacidade de Dados</h3>
+                <p>Seus dados cadastrais e de acesso são utilizados estritamente para autenticação e melhoria do
+                    serviço, seguindo boas práticas de proteção de dados.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Modal de Termos
+        const modal = document.getElementById('terms-modal');
+        const openBtn = document.getElementById('open-terms');
+        const closeBtn = document.getElementById('close-terms');
+
+        openBtn.onclick = (e) => { e.preventDefault(); modal.style.display = 'flex'; }
+        closeBtn.onclick = () => { modal.style.display = 'none'; }
+        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+
+        // Lógica específica de validação visual para a página de registro
+        if (document.getElementById('register-form')) {
+            const pwd = document.getElementById('password');
+            const reqs = {
+                length: document.getElementById('req-length'),
+                upper: document.getElementById('req-upper'),
+                lower: document.getElementById('req-lower'),
+                num: document.getElementById('req-num'),
+                special: document.getElementById('req-special')
+            };
+
+            pwd.addEventListener('input', () => {
+                const val = pwd.value;
+
+                const checks = {
+                    length: val.length >= 8,
+                    upper: /[A-Z]/.test(val),
+                    lower: /[a-z]/.test(val),
+                    num: /[0-9]/.test(val),
+                    special: /[!@#$%^&*(),.?":{}|<>]/.test(val)
+                };
+
+                for (const key in checks) {
+                    if (checks[key]) {
+                        reqs[key].classList.add('valid');
+                    } else {
+                        reqs[key].classList.remove('valid');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
