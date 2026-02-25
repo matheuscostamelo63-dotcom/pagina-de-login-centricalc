@@ -88,10 +88,79 @@ if (loginForm) {
     const forgotPwd = document.getElementById('forgot-password');
     if (forgotPwd) {
         forgotPwd.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Funcionalidade de recuperação de senha em desenvolvimento.');
+            // Se estiver na index.html, o link agora redireciona para forgot-password.html
+            // Não bloqueamos mais com alert.
         });
     }
+}
+
+// Lógica de Recuperação de Senha (forgot-password.html)
+const forgotPasswordForm = document.getElementById('forgot-password-form');
+if (forgotPasswordForm) {
+    forgotPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideAlerts();
+        showLoading(true);
+
+        const email = document.getElementById('email').value;
+
+        try {
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html',
+            });
+
+            if (error) throw error;
+            showSuccess('Link de recuperação enviado para o seu e-mail!');
+            forgotPasswordForm.reset();
+        } catch (error) {
+            console.error('Erro na recuperação:', error.message);
+            showError('Erro ao enviar link de recuperação. Verifique o e-mail informado.');
+        } finally {
+            showLoading(false);
+        }
+    });
+}
+
+// Lógica de Redefinição de Senha (reset-password.html)
+const resetPasswordForm = document.getElementById('reset-password-form');
+if (resetPasswordForm) {
+    resetPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideAlerts();
+
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            showError('A senha não atende aos requisitos de segurança.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showError('As senhas não coincidem.');
+            return;
+        }
+
+        showLoading(true);
+
+        try {
+            const { error } = await supabaseClient.auth.updateUser({
+                password: password
+            });
+
+            if (error) throw error;
+            showSuccess('Senha redefinida com sucesso! Redirecionando...');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        } catch (error) {
+            console.error('Erro ao redefinir password:', error.message);
+            showError('Erro ao redefinir senha. O link pode ter expirado.');
+        } finally {
+            showLoading(false);
+        }
+    });
 }
 
 // Lógica de Registro (register.html)
