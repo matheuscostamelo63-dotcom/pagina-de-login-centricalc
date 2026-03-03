@@ -76,7 +76,14 @@ if (loginForm) {
             });
 
             if (error) throw error;
-            if (data.user) window.location.href = REDIRECT_URL;
+            if (data.session) {
+                const accessToken = data.session.access_token;
+                const refreshToken = data.session.refresh_token;
+                // Redireciona passando o token no hash para o outro domínio capturar
+                window.location.href = `${REDIRECT_URL}#access_token=${accessToken}&refresh_token=${refreshToken}`;
+            } else if (data.user) {
+                window.location.href = REDIRECT_URL;
+            }
         } catch (error) {
             console.error('Erro no login:', error.message);
             showError('E-mail ou senha incorretos.');
